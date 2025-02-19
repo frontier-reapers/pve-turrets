@@ -199,7 +199,7 @@ contract SmartTurretTest is MudTest {
     //Total Weight: 0
     SmartTurretTarget memory turretTarget = SmartTurretTarget({
       shipId: 1,
-      shipTypeId: 1,
+      shipTypeId: 83487,
       characterId: npcCharacterId,
       hpRatio: 100,
       shieldRatio: 100,

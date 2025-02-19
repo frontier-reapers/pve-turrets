@@ -54,6 +54,7 @@ contract SmartTurretSystem is System {
     Turret memory turret,
     SmartTurretTarget memory turretTarget
   ) public returns (TargetPriority[] memory updatedPriorityQueue) {
+    // guard clauses
     if (smartTurretId == 0) {
       revert InvalidSmartTurretId(smartTurretId);
     }
@@ -66,26 +67,31 @@ contract SmartTurretSystem is System {
       revert InvalidTurret(turret);
     }
 
-    // Get the corp ID of the player that is in proximity of the Smart Turret
-    uint256 characterCorp = CharactersTable.getCorpId(turretTarget.characterId);
-
-    // NPCs have a corp ID of 0 so if that happens we just return the priority queue unchanged
-    if (characterCorp != 0) {
+    // if the ship type id is NOT the Feral Mooneater than return the existing queue
+    // <a href="showinfo:83487">Feral Mooneater</a>
+    if (turretTarget.shipTypeId != 83487) {
       return priorityQueue;
     }
 
-    // Create the larger temporary array
+    // if the target ship is already in the priority queue then don't mutate the state
+    for (uint i = 0; i < priorityQueue.length; i++) {
+      if (priorityQueue[i].target.shipId == turretTarget.shipId) {
+        return priorityQueue;
+      }
+    }
+
+    // create the larger temporary array
     TargetPriority[] memory tempArray = new TargetPriority[](priorityQueue.length + 1);
 
-    // Clone the priority queue to the temporary array
+    // clone the priority queue to the temporary array
     for (uint i = 0; i < priorityQueue.length; i++) {
       tempArray[i] = priorityQueue[i];
     }
 
-    // Set the new target to the end of the temporary array
+    // set the new target to the end of the temporary array
     tempArray[priorityQueue.length] = TargetPriority({ target: turretTarget, weight: 0 });
 
-    // Return array to the Smart Turret
+    // return array to the Smart Turret
     return tempArray;
   }
 
