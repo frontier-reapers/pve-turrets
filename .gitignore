@@ -18,3 +18,8 @@ mock-data/broadcast/
 mock-data/cache/
 
 mprocs.log
+
+# env files
+.env
+.env.*
+
