@@ -54,7 +54,6 @@ contract SmartTurretSystem is System {
     Turret memory turret,
     SmartTurretTarget memory turretTarget
   ) public returns (TargetPriority[] memory updatedPriorityQueue) {
-    // guard clauses
     if (smartTurretId == 0) {
       revert InvalidSmartTurretId(smartTurretId);
     }
@@ -67,32 +66,13 @@ contract SmartTurretSystem is System {
       revert InvalidTurret(turret);
     }
 
-    // if the ship type id is NOT the Feral Mooneater than return the existing queue
-    // <a href="showinfo:83487">Feral Mooneater</a>
-    if (turretTarget.shipTypeId != 83487) {
-      return priorityQueue;
+    if (turretTarget.shipTypeId == 83487) {
+      TargetPriority[] memory tempArray = new TargetPriority[](1);
+      tempArray[0] = TargetPriority({ target: turretTarget, weight: 100 });
+      return tempArray;
     }
 
-    // if the target ship is already in the priority queue then don't mutate the state
-    for (uint i = 0; i < priorityQueue.length; i++) {
-      if (priorityQueue[i].target.shipId == turretTarget.shipId) {
-        return priorityQueue;
-      }
-    }
-
-    // create the larger temporary array
-    TargetPriority[] memory tempArray = new TargetPriority[](priorityQueue.length + 1);
-
-    // clone the priority queue to the temporary array
-    for (uint i = 0; i < priorityQueue.length; i++) {
-      tempArray[i] = priorityQueue[i];
-    }
-
-    // set the new target to the end of the temporary array
-    tempArray[priorityQueue.length] = TargetPriority({ target: turretTarget, weight: 0 });
-
-    // return array to the Smart Turret
-    return tempArray;
+    return priorityQueue;
   }
 
   /**
@@ -124,12 +104,18 @@ contract SmartTurretSystem is System {
       revert InvalidTurret(turret);
     }
 
-    if (aggressor.shipId == 0 || aggressor.shipTypeId == 0) {
+    if (aggressor.characterId == 0 || aggressor.shipId == 0 || aggressor.shipTypeId == 0) {
       revert InvalidTarget(aggressor);
     }
-
-    if (victim.shipId == 0 || victim.shipTypeId == 0) {
+    
+    if (victim.characterId == 0 || victim.shipId == 0 || victim.shipTypeId == 0) {
       revert InvalidTarget(victim);
+    }
+
+    if (aggressor.shipTypeId == 83487) {
+      TargetPriority[] memory tempArray = new TargetPriority[](1);
+      tempArray[0] = TargetPriority({ target: aggressor, weight: 100 });
+      return tempArray;
     }
 
     return priorityQueue;
